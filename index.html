@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>차곡차곡 선물</title>
+<meta property="og:title" content="차곡차곡 · 우리 아이 성장 앨범 선물">
+<meta property="og:description" content="손주 사진으로 만든 성장 앨범 게임이 도착했어요">
+<style>
+:root{--bg:#FFF4F1;--card:#fff;--ink:#4A3431;--soft:#8A6F6A;--pink:#E8666F;--pink2:#F2858B;--line:#F3DAD5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","PingFang TC",sans-serif;line-height:1.55}
+main{max-width:440px;margin:0 auto;padding:28px 16px 48px}
+.card{background:var(--card);border-radius:24px;padding:28px 22px;box-shadow:0 10px 30px rgba(180,90,95,.12);text-align:center}
+.face{width:88px;height:88px;border-radius:50%;margin:0 auto 14px;background:var(--pink2);display:flex;align-items:center;justify-content:center}
+.face i{width:62px;height:62px;border-radius:50%;background:#FFE4D6;border:4px solid #fff;display:block}
+h1{font-size:24px;margin:0 0 6px}
+p{margin:0 0 10px;color:var(--soft);font-size:15px}
+.btn{display:block;width:100%;padding:16px;border-radius:16px;border:0;background:var(--pink);color:#fff;font-size:18px;font-weight:700;text-decoration:none;margin:18px 0 8px}
+.btn:active{opacity:.85}
+.sub{font-size:13px}
+.stores{display:flex;gap:10px;margin-top:10px}
+.stores a{flex:1;padding:12px 8px;border-radius:14px;border:1.5px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;background:#fff}
+hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#FFF7F5;border:1px dashed var(--line);border-radius:12px;padding:10px;margin:8px 0;color:var(--ink)}
+.copy{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:9px 14px;font-size:14px;font-weight:600;color:var(--ink)}
+.warn{color:var(--pink);font-weight:600}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <div class="face"><i></i></div>
+    <h1 data-t="title"></h1>
+    <p data-t="lead"></p>
+    <p class="warn" id="state" hidden></p>
+
+    <a class="btn" id="open" href="#" data-t="open"></a>
+    <p class="sub" data-t="after"></p>
+
+    <hr>
+    <p data-t="noapp"></p>
+    <div class="stores">
+      <a id="ios" href="#">App Store</a>
+      <a id="android" href="#">Google Play</a>
+    </div>
+
+    <div id="codebox">
+      <hr>
+      <p class="sub" data-t="code"></p>
+      <div class="code" id="code"></div>
+      <button class="copy" id="copy" data-t="copy"></button>
+    </div>
+  </div>
+</main>
+<script>
+/* ⚠️ 바꿀 곳 두 줄 — 앱스토어 앱 ID(App Store Connect > 앱 정보 > Apple ID 숫자)와 서버 주소 */
+var APP_STORE_ID = '';
+var API = 'https://mulltagi-server.onrender.com/api/chagok';
+
+var PKG = 'com.hcompany.chagokchagok';
+var T = {
+  ko: { title:'선물이 도착했어요', lead:'우리 아이 사진으로 만든 성장 앨범 게임이에요. 차곡차곡 앱에서 열어 보세요.', open:'차곡차곡에서 열기', after:'앱을 처음 설치했다면, 설치한 뒤 이 링크를 한 번 더 눌러 주세요.', noapp:'아직 앱이 없나요? 무료로 받을 수 있어요.', code:'링크가 열리지 않으면 앱의 [선물 받기]에 아래 코드를 붙여 넣어 주세요.', copy:'코드 복사', copied:'복사했어요', expired:'보관 기간(7일)이 지난 선물이에요. 보낸 분께 다시 보내 달라고 해 주세요.', missing:'선물을 찾지 못했어요. 받은 링크를 다시 확인해 주세요.' },
+  en: { title:'You got a gift!', lead:'A growth album game made with a child\'s photos. Open it in the Chagok app.', open:'Open in Chagok', after:'Just installed the app? Tap this link once more after installing.', noapp:'Don\'t have the app yet? It\'s free.', code:'If the link doesn\'t open, paste this code into [Receive gift] in the app.', copy:'Copy code', copied:'Copied', expired:'This gift has expired (kept for 7 days). Ask the sender to send it again.', missing:'We couldn\'t find this gift. Please check the link.' },
+  ja: { title:'プレゼントが届きました', lead:'お子さまの写真で作った成長アルバムゲームです。チャゴクアプリで開いてください。', open:'チャゴクで開く', after:'アプリを初めて入れた方は、インストール後にもう一度このリンクを押してください。', noapp:'まだアプリがありませんか？無料でダウンロードできます。', code:'リンクが開かない場合は、アプリの［プレゼントを受け取る］にこのコードを貼り付けてください。', copy:'コードをコピー', copied:'コピーしました', expired:'保管期間（7日）が過ぎたプレゼントです。送った方にもう一度送ってもらってください。', missing:'プレゼントが見つかりません。リンクをもう一度ご確認ください。' },
+  zh: { title:'收到禮物了', lead:'這是用孩子的照片做成的成長相簿遊戲，請用 Chagok 開啟。', open:'在 Chagok 開啟', after:'如果是第一次安裝，安裝後請再點一次這個連結。', noapp:'還沒有 App 嗎？可以免費下載。', code:'如果連結打不開，請把下面的代碼貼到 App 的［接收禮物］。', copy:'複製代碼', copied:'已複製', expired:'這份禮物已過保存期限（7 天），請請對方再傳一次。', missing:'找不到這份禮物，請確認連結。' }
+};
+var nav = (navigator.language || 'ko').toLowerCase();
+var L = nav.indexOf('ko') === 0 ? 'ko' : nav.indexOf('ja') === 0 ? 'ja' : nav.indexOf('zh') === 0 ? 'zh' : 'en';
+var t = T[L];
+document.documentElement.lang = L;
+document.querySelectorAll('[data-t]').forEach(function (el) { el.textContent = t[el.getAttribute('data-t')]; });
+
+/* 선물 코드 = 선물ID.열쇠  (열쇠는 # 뒤에만 있어서 서버로 가지 않습니다) */
+var code = decodeURIComponent((location.hash || '').slice(1));
+var ok = /^[a-z2-9]{12}\.[A-Za-z0-9_-]{40,60}$/.test(code);
+var id = ok ? code.split('.')[0] : '';
+var ua = navigator.userAgent || '';
+var isAndroid = /android/i.test(ua);
+
+var play = 'https://play.google.com/store/apps/details?id=' + PKG;
+var appstore = APP_STORE_ID ? 'https://apps.apple.com/app/id' + APP_STORE_ID : 'https://apps.apple.com/search?term=Chagok';
+document.getElementById('ios').href = appstore;
+document.getElementById('android').href = play;
+
+var openEl = document.getElementById('open');
+if (ok) {
+  var deep = 'chagok://gift?c=' + encodeURIComponent(code);
+  openEl.href = isAndroid
+    ? 'intent://gift?c=' + encodeURIComponent(code) + '#Intent;scheme=chagok;package=' + PKG + ';S.browser_fallback_url=' + encodeURIComponent(play) + ';end'
+    : deep;
+  document.getElementById('code').textContent = code;
+} else {
+  openEl.hidden = true;
+  document.getElementById('codebox').hidden = true;
+  showState(t.missing);
+}
+
+document.getElementById('copy').addEventListener('click', function () {
+  var btn = this;
+  var done = function () { btn.textContent = t.copied; };
+  if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, done);
+  else { var r = document.createRange(); r.selectNode(document.getElementById('code')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); done(); }
+});
+
+function showState(msg) { var s = document.getElementById('state'); s.textContent = msg; s.hidden = false; }
+
+/* 만료됐는지만 묻습니다 — 사진은 받지 않습니다(받으면 「열림」이 됩니다) */
+if (ok) {
+  fetch(API + '/gift/' + id + '/status').then(function (r) { return r.json(); }).then(function (j) {
+    if (!j.exists) { showState(t.missing); openEl.hidden = true; document.getElementById('codebox').hidden = true; }
+    else if (j.expired) { showState(t.expired); openEl.hidden = true; document.getElementById('codebox').hidden = true; }
+  }).catch(function () {});
+}
+</script>
+</body>
+</html>
